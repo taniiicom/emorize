@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
+	"math"
 	"os"
 	"strings"
 
@@ -105,7 +106,7 @@ func drawText(c *freetype.Context, font *truetype.Font, text string, width int) 
 		// err
 		return fmt.Errorf("too few lines")
 	} else if len(lines) < 4 {
-		fontSize = (CANVAS_HEIGHT - 5) / float64(len(lines))
+		fontSize = (CANVAS_HEIGHT) / float64(len(lines))
 		yPos = float64(fontSize)
 	} else {
 		// err
@@ -125,12 +126,15 @@ func drawText(c *freetype.Context, font *truetype.Font, text string, width int) 
 		// 文字列の表示幅を計算
 		txtWidth := MeasureString(face, line).Round()
 		var scale float64 = 1.0
+		// 描画幅が指定された幅を超える場合、スケールを計算してフォントサイズを調整
 		if txtWidth > width {
 			scale = float64(width) / float64(txtWidth)
 		}
 
+		// スケールに基づいてフォントサイズを調整
 		c.SetFontSize(fontSize * scale)
-		pt := freetype.Pt((128-txtWidth)/2, int(yPos)+i*int(fontSize))
+		// テキストを中央揃えで描画するための開始ポイントを計算
+		pt := freetype.Pt(int(math.Round((float64(CANVAS_WIDTH)-(float64(txtWidth)*scale))/2)), int(yPos)+i*int(fontSize))
 		_, err := c.DrawString(line, pt)
 		if err != nil {
 			return err
