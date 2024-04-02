@@ -1,3 +1,7 @@
+# usage:
+# - `docker build . -t emorize`
+# - `docker run emorize`
+
 # Goのビルド環境
 FROM golang:1.21-alpine as builder
 
