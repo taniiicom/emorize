@@ -1,5 +1,5 @@
 # Goのビルド環境
-FROM golang:1.16-alpine as builder
+FROM golang:1.21-alpine as builder
 
 # 作業ディレクトリを設定
 WORKDIR /app
