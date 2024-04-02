@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// discord のエントリーポイント
 func Discord() {
 	// .env -> 環境変数
 	err := godotenv.Load(".env")
@@ -22,11 +23,13 @@ func Discord() {
 
 	DISCORD_BOT_TOKEN := os.Getenv("DISCORD_BOT_TOKEN")
 
-	dg, err := discordgo.New("Bot " + DISCORD_BOT_TOKEN)
-	if err != nil {
-		fmt.Println("エラーが発生しました: ", err)
-		return
-	}
+	dg, _ := discordgo.New("Bot " + DISCORD_BOT_TOKEN)
+	// tmp: 互換性上の理由から省略
+	// cf. https://medium.com/@lapfed255/writing-modern-discord-bots-on-go-9e107bb7fcaa
+	// if err != nil {
+	// 	fmt.Println("エラーが発生しました: ", err)
+	// 	return
+	// }
 
 	bot := NewBot(dg)
 	bot.Setup()
