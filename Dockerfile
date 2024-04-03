@@ -5,6 +5,9 @@
 # Goのビルド環境
 FROM golang:1.21-alpine as builder
 
+# label
+LABEL maintainer="taniiicom <mail@taniii.com>"
+
 # 作業ディレクトリを設定
 WORKDIR /app
 
