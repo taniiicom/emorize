@@ -22,15 +22,20 @@ RUN go mod download
 COPY . .
 
 # プロジェクトルートのmain.goをビルド
-RUN CGO_ENABLED=0 GOOS=linux go build -o /discord-bot .
+# -v = verbose = ビルド中のログの冗長詳細出力
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o /discord-bot .
 
-# 実行環境
-FROM alpine:latest
+# 実行用の新しいステージ
+# FROM alpine:latest
+FROM gcr.io/distroless/base-debian10
 
 # 必要なファイルやディレクトリを新しいイメージにコピー
 COPY --from=builder /discord-bot /discord-bot
 COPY --from=builder /app/public /public
 COPY --from=builder /app/.env /.env
 
-# 実行
+# アプリケーションがリッスンするポート番号を指定
+EXPOSE 8080
+
+# アプリケーションの起動
 CMD ["/discord-bot"]
