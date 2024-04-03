@@ -34,6 +34,13 @@ func Discord() {
 	bot := NewBot(dg)
 	bot.Setup()
 
+	// ゲートウェイセッションを開放
+	// これで, discord からのイベントを受信
+	err = dg.Open()
+	if err != nil {
+		fmt.Println("Error opening websocket: ", err)
+	}
+
 	fmt.Println("Bot が正常に起動しました. ctrl+c で終了します.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
