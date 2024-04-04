@@ -21,6 +21,10 @@ RUN go mod download
 # プロジェクトの全ファイルをコピー
 COPY . .
 
+# [prod] product 環境向け
+# .env ファイルが存在しない場合は空の .env ファイルを作成
+RUN [ ! -f .env ] && touch .env || exit 0
+
 # プロジェクトルートのmain.goをビルド
 # -v = verbose = ビルド中のログの冗長詳細出力
 RUN CGO_ENABLED=0 GOOS=linux go build -v -o /discord-bot .
