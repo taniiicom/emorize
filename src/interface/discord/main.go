@@ -23,6 +23,9 @@ func Discord() {
 
 	DISCORD_BOT_TOKEN := os.Getenv("DISCORD_BOT_TOKEN")
 
+	// debug:
+	fmt.Println("using DISCORD_BOT_TOKEN: ", DISCORD_BOT_TOKEN[:5])
+
 	dg, _ := discordgo.New("Bot " + DISCORD_BOT_TOKEN)
 	// tmp: 互換性上の理由から省略
 	// cf. https://medium.com/@lapfed255/writing-modern-discord-bots-on-go-9e107bb7fcaa
