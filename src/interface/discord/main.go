@@ -29,6 +29,7 @@ func Discord() {
 
 	// debug:
 	fmt.Println("using DISCORD_BOT_TOKEN: ", DISCORD_BOT_TOKEN[:5])
+	fmt.Println("using DISCORD_BOT_TOKEN: ", DISCORD_APP_ID[:3])
 
 	dg, _ := discordgo.New("Bot " + DISCORD_BOT_TOKEN)
 	// tmp: 互換性上の理由から省略
