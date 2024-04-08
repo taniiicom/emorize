@@ -5,6 +5,7 @@ package discord
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -43,6 +44,20 @@ func Discord() {
 	if err != nil {
 		fmt.Println("Error opening websocket: ", err)
 	}
+
+	// サーバ起動
+	go func() {
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = "8080" // cloud-run が提供する PORT 環境変数がない場合のデフォルト値
+			fmt.Println("Defaulting to port: ", port)
+		}
+
+		fmt.Println("Listening on port: ", port)
+		if err := http.ListenAndServe(":"+port, nil); err != nil {
+			panic(err)
+		}
+	}()
 
 	fmt.Println("Bot が正常に起動しました. ctrl+c で終了します.")
 	sc := make(chan os.Signal, 1)
