@@ -1,24 +1,71 @@
 package discord
 
 import (
+	"fmt"
+
 	"github.com/bwmarrin/discordgo"
 )
 
 type Bot struct {
 	Session *discordgo.Session
+	AppId   string
 }
 
-func NewBot(session *discordgo.Session) *Bot {
-	return &Bot{Session: session}
+func NewBot(session *discordgo.Session, AppId string) *Bot {
+	return &Bot{Session: session, AppId: AppId}
 }
 
 func (b *Bot) Setup() {
-	b.Session.AddHandler(interactionCreate)
-	// 他のセットアップや初期化のコードをここに追加
+	// slash-command
+
+	commands := []*discordgo.ApplicationCommand{
+		{
+			Name:        "ping",
+			Description: "ping pong",
+		},
+		{
+			Name:        "emorize",
+			Description: "Generate Custom-Emoji from Text",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "text",
+					Description: "e.g. Thank_You, 気に_なる",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "name",
+					Description: "e.g. thx, kininaru",
+					Required:    true,
+				},
+			},
+		},
+	}
+
+	// slash-command の一括登録
+	// guildID が空文字列の場合はグローバルコマンドとしてすべての"サーバ"に適用
+	_, err := b.Session.ApplicationCommandBulkOverwrite(b.AppId, "", commands)
+	if err != nil {
+		fmt.Println("error creating slash-commands: ", err)
+		panic(err)
+	}
+	fmt.Println("slash-commands registered")
+
+	// -
+
+	// interaction-handler
+
+	// interaction に対する応答を処理するハンドラを登録
+	// handleSlashCommandInteraction をイベントリスナーとして登録
+	b.Session.AddHandler(handleSlashCommandInteraction)
+
 }
 
-func interactionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func handleSlashCommandInteraction(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	// slash-commands (= ApplicationCommand) によるリクエストか判定
 	if i.Type == discordgo.InteractionApplicationCommand {
+		// 具体的なコマンドごとの処理を実行
 		commandHandler(s, i)
 	}
 }

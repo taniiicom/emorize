@@ -22,7 +22,10 @@ func Discord() {
 		fmt.Println("Error loading .env file: ", err)
 	}
 
-	DISCORD_BOT_TOKEN := os.Getenv("DISCORD_BOT_TOKEN")
+	var (
+		DISCORD_BOT_TOKEN = os.Getenv("DISCORD_BOT_TOKEN")
+		DISCORD_APP_ID    = os.Getenv("DISCORD_APP_ID")
+	)
 
 	// debug:
 	fmt.Println("using DISCORD_BOT_TOKEN: ", DISCORD_BOT_TOKEN[:5])
@@ -35,7 +38,7 @@ func Discord() {
 	// 	return
 	// }
 
-	bot := NewBot(dg)
+	bot := NewBot(dg, DISCORD_APP_ID)
 	bot.Setup()
 
 	// ゲートウェイセッションを開放
