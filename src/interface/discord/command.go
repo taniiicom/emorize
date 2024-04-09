@@ -54,7 +54,7 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	var (
 		text      string
 		name      string
-		colorText string
+		colorText string = ""
 	)
 	for _, option := range i.ApplicationCommandData().Options {
 		switch option.Name {
@@ -68,12 +68,12 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 
 	// Color
+	var hexColor string
 	col := color.NewColorService()
-	hexColor, err := col.ConvHexColor(colorText)
-	if err != nil {
-		fmt.Println("Failed to convert color: ", err)
-		respondError(s, i, "Failed to convert color")
-		return
+	if colorText == "" {
+		hexColor = col.GetRandomColor()
+	} else {
+		hexColor, _ = col.ConvHexColor(colorText)
 	}
 
 	// TextEmoji

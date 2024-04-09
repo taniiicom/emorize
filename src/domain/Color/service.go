@@ -2,6 +2,7 @@ package color
 
 import (
 	"fmt"
+	"math/rand"
 )
 
 // 定数
@@ -44,4 +45,21 @@ func (s *ColorService) ConvHexColor(colorText string) (string, error) {
 	}
 
 	return hexColor, nil
+}
+
+func (s *ColorService) GetRandomColor() string {
+	colors := []string{
+		COLOR_RED,
+		COLOR_ORANGE,
+		COLOR_YELLOW,
+		COLOR_GREEN,
+		COLOR_CYAN,
+		COLOR_BLUE,
+		COLOR_PURPLE,
+	}
+
+	// random
+	color := colors[rand.Intn(len(colors))]
+
+	return color
 }
