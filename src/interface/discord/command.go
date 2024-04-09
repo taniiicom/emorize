@@ -1,9 +1,16 @@
 package discord
 
 import (
+	textemoji "emorize/src/domain/TextEmoji"
+	"encoding/base64"
 	"fmt"
+	"os"
 
 	"github.com/bwmarrin/discordgo"
+)
+
+const (
+	FONT_PATH = "public/fonts/ZenMaruGothic-Medium.ttf"
 )
 
 func commandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -13,6 +20,19 @@ func commandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	case "emorize":
 		responseEmorize(s, i)
+	}
+}
+
+func respondError(s *discordgo.Session, i *discordgo.InteractionCreate, message string) {
+	fmt.Println("respondError: ", message)
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "oops...: " + message,
+		},
+	})
+	if err != nil {
+		fmt.Println("応答に失敗しました: ", err)
 	}
 }
 
@@ -29,10 +49,66 @@ func responsePing(s *discordgo.Session, i *discordgo.InteractionCreate) {
 }
 
 func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	// Options の値を取得
+	var (
+		text string
+		name string
+	)
+	for _, option := range i.ApplicationCommandData().Options {
+		switch option.Name {
+		case "text":
+			text = option.StringValue()
+		case "name":
+			name = option.StringValue()
+		}
+	}
+
+	// TextEmoji
+	te := textemoji.NewTextEmojiService(FONT_PATH)
+	filePath, err := te.GenerateTextEmoji(text, "#FF5733")
+	if err != nil {
+		fmt.Println("Failed to generate text emoji: ", err)
+		respondError(s, i, "Failed to generate text emoji")
+		return
+	}
+
+	// png を base64 に変換 (Base64 encoding)
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		fmt.Println("Failed to read file: ", err)
+		respondError(s, i, "Failed to read file")
+		return
+	}
+
+	encodedEmoji := base64.StdEncoding.EncodeToString(data)
+
+	newEmoji := &discordgo.EmojiParams{
+		Name:  name,
+		Image: "data:image/png;base64," + encodedEmoji,
+	}
+
+	// Emoji を guild に追加
+	emoji, err := s.GuildEmojiCreate(i.GuildID, newEmoji)
+	if err != nil {
+		fmt.Println("Failed to create emoji: ", err)
+		respondError(s, i, "Failed to create emoji")
+		return
+	}
+
+	// respond
+	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: "Pong!",
+			Content: "New Custom-Emoji Created and Now Available! \n 【 :" + emoji.Name + ": 】 : " + emoji.Name,
+			// Embeds: []*discordgo.MessageEmbed{
+			// 	{
+			// 		Title: emoji.Name,
+			// 		Description: "",
+			// 		Image: &discordgo.MessageEmbedImage{
+			// 			URL: emoji.,
+			// 		},
+			// 	},
+			// },
 		},
 	})
 	if err != nil {
