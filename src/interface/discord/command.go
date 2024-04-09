@@ -1,6 +1,7 @@
 package discord
 
 import (
+	color "emorize/src/domain/Color"
 	textemoji "emorize/src/domain/TextEmoji"
 	"encoding/base64"
 	"fmt"
@@ -51,8 +52,9 @@ func responsePing(s *discordgo.Session, i *discordgo.InteractionCreate) {
 func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// Options の値を取得
 	var (
-		text string
-		name string
+		text      string
+		name      string
+		colorText string
 	)
 	for _, option := range i.ApplicationCommandData().Options {
 		switch option.Name {
@@ -60,12 +62,23 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			text = option.StringValue()
 		case "name":
 			name = option.StringValue()
+		case "color":
+			colorText = option.StringValue()
 		}
+	}
+
+	// Color
+	col := color.NewColorService()
+	hexColor, err := col.ConvHexColor(colorText)
+	if err != nil {
+		fmt.Println("Failed to convert color: ", err)
+		respondError(s, i, "Failed to convert color")
+		return
 	}
 
 	// TextEmoji
 	te := textemoji.NewTextEmojiService(FONT_PATH)
-	filePath, err := te.GenerateTextEmoji(text, "#FF5733")
+	filePath, err := te.GenerateTextEmoji(text, hexColor)
 	if err != nil {
 		fmt.Println("Failed to generate text emoji: ", err)
 		respondError(s, i, "Failed to generate text emoji")

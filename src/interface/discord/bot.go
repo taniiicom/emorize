@@ -39,6 +39,42 @@ func (b *Bot) Setup() {
 					Description: "e.g. thx, kininaru",
 					Required:    true,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "color",
+					Description: "text color / e.g. red, orange, yellow, green, cyan, blue, purple",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "red",
+							Value: "red",
+						},
+						{
+							Name:  "orange",
+							Value: "orange",
+						},
+						{
+							Name:  "yellow",
+							Value: "yellow",
+						},
+						{
+							Name:  "green",
+							Value: "green",
+						},
+						{
+							Name:  "cyan",
+							Value: "cyan",
+						},
+						{
+							Name:  "blue",
+							Value: "blue",
+						},
+						{
+							Name:  "purple",
+							Value: "purple",
+						},
+					},
+				},
 			},
 		},
 	}
