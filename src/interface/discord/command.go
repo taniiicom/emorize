@@ -124,8 +124,8 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			// },
 			Embeds: []*discordgo.MessageEmbed{
 				{
-					Title:       "New Custom-Emoji Created and Now Available!",
-					Description: " <:" + emoji.Name + ":" + emoji.ID + "> : " + emoji.Name,
+					Title:       " <:" + emoji.Name + ":" + emoji.ID + "> : " + emoji.Name,
+					Description: "New Custom-Emoji Created and Now Available!",
 					Color:       0x1fd1da,
 				},
 			},
