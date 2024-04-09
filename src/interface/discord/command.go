@@ -112,7 +112,7 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: "New Custom-Emoji Created and Now Available! \n 【 :" + emoji.Name + ": 】 : " + emoji.Name,
+			Content: "",
 			// Embeds: []*discordgo.MessageEmbed{
 			// 	{
 			// 		Title: emoji.Name,
@@ -122,6 +122,13 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			// 		},
 			// 	},
 			// },
+			Embeds: []*discordgo.MessageEmbed{
+				{
+					Title:       "New Custom-Emoji Created and Now Available!",
+					Description: " <:" + emoji.Name + ":" + emoji.ID + "> : " + emoji.Name,
+					Color:       0x1fd1da,
+				},
+			},
 		},
 	})
 	if err != nil {
