@@ -84,7 +84,7 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	newEmoji := &discordgo.EmojiParams{
 		Name:  name,
-		Image: encodedEmoji,
+		Image: "data:image/png;base64," + encodedEmoji,
 	}
 
 	// Emoji を guild に追加
