@@ -1,6 +1,7 @@
 package textemoji
 
 import (
+	"context"
 	"fmt"
 	"image"
 	"image/color"
@@ -21,12 +22,14 @@ const CANVAS_HEIGHT = 128
 const CANVAS_WIDTH = 128
 
 type TextEmojiService struct {
-	fontPath string
+	fontPath   string
+	repository TextEmojiRepository
 }
 
-func NewTextEmojiService(fontPath string) *TextEmojiService {
+func NewTextEmojiService(fontPath string, repository TextEmojiRepository) *TextEmojiService {
 	return &TextEmojiService{
-		fontPath: fontPath,
+		fontPath:   fontPath,
+		repository: repository,
 	}
 }
 
@@ -68,6 +71,13 @@ func (s *TextEmojiService) GenerateTextEmoji(text string, hexColor string) (stri
 
 	if err := png.Encode(outFile, img); err != nil {
 		return "", err
+	}
+
+	// bucket にアップロード
+	// outFile.Name() のアップロード部分を追加
+	if err := s.repository.UploadToBucket(context.Background(), outFile.Name()); err != nil {
+		// [ignorable error]
+		fmt.Println("Error uploading to bucket:", err)
 	}
 
 	return outFile.Name(), nil
