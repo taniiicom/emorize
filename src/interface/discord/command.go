@@ -21,7 +21,19 @@ func commandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		responsePing(s, i)
 
 	case "emorize":
+		// [ack]
+		sendAck(s, i)
+		// [async]
 		responseEmorize(s, i)
+	}
+}
+
+func sendAck(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	if err != nil {
+		fmt.Println("ack の送信に失敗しました: ", err)
 	}
 }
 
@@ -80,7 +92,7 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// TextEmoji
 	uploader := &bucket.R2Uploader{} // [di]
 	te := textemoji.NewTextEmojiService(FONT_PATH, uploader)
-	filePath, err := te.GenerateTextEmoji(text, hexColor)
+	filePath, bucketObjectUrl, err := te.GenerateTextEmoji(text, hexColor)
 	if err != nil {
 		fmt.Println("Failed to generate text emoji: ", err)
 		respondError(s, i, "Failed to generate text emoji")
@@ -111,24 +123,15 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 
 	// respond
-	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Content: "",
-			// Embeds: []*discordgo.MessageEmbed{
-			// 	{
-			// 		Title: emoji.Name,
-			// 		Description: "",
-			// 		Image: &discordgo.MessageEmbedImage{
-			// 			URL: emoji.,
-			// 		},
-			// 	},
-			// },
-			Embeds: []*discordgo.MessageEmbed{
-				{
-					Title:       " <:" + emoji.Name + ":" + emoji.ID + "> : " + emoji.Name,
-					Description: "New Custom-Emoji Created and Now Available!",
-					Color:       0x1fd1da,
+	_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+		Content: "",
+		Embeds: []*discordgo.MessageEmbed{
+			{
+				Title:       " <:" + emoji.Name + ":" + emoji.ID + "> : " + emoji.Name,
+				Description: "New Custom-Emoji Created and Now Available!\nYou can use this emoji by typing `:name:`.",
+				Color:       0x1fd1da,
+				Image: &discordgo.MessageEmbedImage{
+					URL: bucketObjectUrl,
 				},
 			},
 		},
