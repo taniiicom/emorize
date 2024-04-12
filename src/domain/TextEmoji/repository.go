@@ -5,5 +5,5 @@ import (
 )
 
 type TextEmojiRepository interface {
-	UploadToBucket(ctx context.Context, filePath string) error
+	UploadToBucket(ctx context.Context, filePath string) (string, error)
 }

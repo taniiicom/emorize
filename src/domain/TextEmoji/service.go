@@ -33,15 +33,15 @@ func NewTextEmojiService(fontPath string, repository TextEmojiRepository) *TextE
 	}
 }
 
-func (s *TextEmojiService) GenerateTextEmoji(text string, hexColor string) (string, error) {
+func (s *TextEmojiService) GenerateTextEmoji(text string, hexColor string) (string, string, error) {
 	fontBytes, err := os.ReadFile(s.fontPath)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	f, err := freetype.ParseFont(fontBytes)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, 128, 128))
@@ -55,32 +55,33 @@ func (s *TextEmojiService) GenerateTextEmoji(text string, hexColor string) (stri
 
 	col, err := parseHexColor(hexColor)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	c.SetSrc(image.NewUniform(col))
 
 	if err := drawText(c, f, text, 128); err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	outFile, err := os.CreateTemp("", "textemoji-*.png")
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	defer outFile.Close()
 
 	if err := png.Encode(outFile, img); err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	// bucket にアップロード
 	// outFile.Name() のアップロード部分を追加
-	if err := s.repository.UploadToBucket(context.Background(), outFile.Name()); err != nil {
+	bucketObjectUrl, err := s.repository.UploadToBucket(context.Background(), outFile.Name())
+	if err != nil {
 		// [ignorable error]
 		fmt.Println("Error uploading to bucket:", err)
 	}
 
-	return outFile.Name(), nil
+	return outFile.Name(), bucketObjectUrl, nil
 }
 
 func parseHexColor(s string) (color.Color, error) {
