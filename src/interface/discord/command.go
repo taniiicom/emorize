@@ -1,6 +1,7 @@
 package discord
 
 import (
+	color "emorize/src/domain/Color"
 	textemoji "emorize/src/domain/TextEmoji"
 	"emorize/src/infra/bucket"
 	"encoding/base64"
@@ -52,8 +53,9 @@ func responsePing(s *discordgo.Session, i *discordgo.InteractionCreate) {
 func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// Options の値を取得
 	var (
-		text string
-		name string
+		text      string
+		name      string
+		colorText string = ""
 	)
 	for _, option := range i.ApplicationCommandData().Options {
 		switch option.Name {
@@ -61,13 +63,24 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			text = option.StringValue()
 		case "name":
 			name = option.StringValue()
+		case "color":
+			colorText = option.StringValue()
 		}
+	}
+
+	// Color
+	var hexColor string
+	col := color.NewColorService()
+	if colorText == "" {
+		hexColor = col.GetRandomColor()
+	} else {
+		hexColor, _ = col.ConvHexColor(colorText)
 	}
 
 	// TextEmoji
 	uploader := &bucket.R2Uploader{} // [di]
 	te := textemoji.NewTextEmojiService(FONT_PATH, uploader)
-	filePath, err := te.GenerateTextEmoji(text, "#FF5733")
+	filePath, err := te.GenerateTextEmoji(text, hexColor)
 	if err != nil {
 		fmt.Println("Failed to generate text emoji: ", err)
 		respondError(s, i, "Failed to generate text emoji")
@@ -101,7 +114,7 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: "New Custom-Emoji Created and Now Available! \n 【 :" + emoji.Name + ": 】 : " + emoji.Name,
+			Content: "",
 			// Embeds: []*discordgo.MessageEmbed{
 			// 	{
 			// 		Title: emoji.Name,
@@ -111,6 +124,13 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			// 		},
 			// 	},
 			// },
+			Embeds: []*discordgo.MessageEmbed{
+				{
+					Title:       " <:" + emoji.Name + ":" + emoji.ID + "> : " + emoji.Name,
+					Description: "New Custom-Emoji Created and Now Available!",
+					Color:       0x1fd1da,
+				},
+			},
 		},
 	})
 	if err != nil {
