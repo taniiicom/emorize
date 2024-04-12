@@ -3,6 +3,7 @@ package discord
 import (
 	color "emorize/src/domain/Color"
 	textemoji "emorize/src/domain/TextEmoji"
+	"emorize/src/infra/bucket"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -77,7 +78,8 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 
 	// TextEmoji
-	te := textemoji.NewTextEmojiService(FONT_PATH)
+	uploader := &bucket.R2Uploader{} // [di]
+	te := textemoji.NewTextEmojiService(FONT_PATH, uploader)
 	filePath, err := te.GenerateTextEmoji(text, hexColor)
 	if err != nil {
 		fmt.Println("Failed to generate text emoji: ", err)
