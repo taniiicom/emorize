@@ -50,6 +50,23 @@ func respondError(s *discordgo.Session, i *discordgo.InteractionCreate, message 
 	}
 }
 
+func respondAsyncError(s *discordgo.Session, i *discordgo.InteractionCreate, message string) {
+	fmt.Println("respondAsyncError: ", message)
+	_, err := s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+		Content: "",
+		Embeds: []*discordgo.MessageEmbed{
+			{
+				Title:       "oops...: ",
+				Description: message,
+				Color:       0x1fd1da,
+			},
+		},
+	})
+	if err != nil {
+		fmt.Println("応答に失敗しました: ", err)
+	}
+}
+
 func responsePing(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -95,7 +112,7 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	filePath, bucketObjectUrl, err := te.GenerateTextEmoji(text, hexColor)
 	if err != nil {
 		fmt.Println("Failed to generate text emoji: ", err)
-		respondError(s, i, "Failed to generate text emoji")
+		respondAsyncError(s, i, "Failed to generate text emoji")
 		return
 	}
 
@@ -103,7 +120,7 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		fmt.Println("Failed to read file: ", err)
-		respondError(s, i, "Failed to read file")
+		respondAsyncError(s, i, "Failed to read file")
 		return
 	}
 
@@ -118,7 +135,7 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	emoji, err := s.GuildEmojiCreate(i.GuildID, newEmoji)
 	if err != nil {
 		fmt.Println("Failed to create emoji: ", err)
-		respondError(s, i, "Failed to create emoji")
+		respondAsyncError(s, i, "Failed to create emoji")
 		return
 	}
 
