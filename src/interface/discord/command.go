@@ -134,8 +134,8 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// Emoji を guild に追加
 	emoji, err := s.GuildEmojiCreate(i.GuildID, newEmoji)
 	if err != nil {
-		fmt.Println("Failed to create emoji: ", err)
-		respondAsyncError(s, i, "Failed to create emoji")
+		fmt.Println("Failed to add emoji: ", err)
+		respondAsyncError(s, i, "Failed to add emoji\nhint1 : `MANAGE_EMOJI_AND_STICKER` permission is insufficient. Please change from `Server Settings` > `Roles` > `emorize` > `Permissions` > `Manage emojis`.\nhint2 : Your server's emoji slots may be full. Boost your server to increase capacity or organize existing emojis to free up space.")
 		return
 	}
 
