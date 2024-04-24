@@ -157,7 +157,7 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		Embeds: []*discordgo.MessageEmbed{
 			{
 				Title:       " <:" + emoji.Name + ":" + emoji.ID + "> : " + emoji.Name,
-				Description: "New Custom-Emoji Created and Now Available!\nYou can use this emoji by typing `:" + emoji.Name + ":`. \n[share](" + twitterURL + ")",
+				Description: "New Custom-Emoji Created and Now Available!\nYou can use this emoji by typing `:" + emoji.Name + ":`. \n[share on X/Twitter](" + twitterURL + ")",
 				Color:       0x1fd1da,
 				Image: &discordgo.MessageEmbedImage{
 					URL: bucketObjectUrl,
