@@ -145,11 +145,11 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	twitterURL := "https://twitter.com/intent/tweet?text=" + twitterText
 
 	// ボタンを作成
-	shareButton := discordgo.Button{
-		Label: "Share on X/Twitter",
-		Style: discordgo.LinkButton,
-		URL:   twitterURL,
-	}
+	// shareButton := discordgo.Button{
+	// 	Label: "Share on X/Twitter",
+	// 	Style: discordgo.LinkButton,
+	// 	URL:   twitterURL,
+	// }
 
 	// respond
 	_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
@@ -157,18 +157,18 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		Embeds: []*discordgo.MessageEmbed{
 			{
 				Title:       " <:" + emoji.Name + ":" + emoji.ID + "> : " + emoji.Name,
-				Description: "New Custom-Emoji Created and Now Available!\nYou can use this emoji by typing `:" + emoji.Name + ":`.",
+				Description: "New Custom-Emoji Created and Now Available!\nYou can use this emoji by typing `:" + emoji.Name + ":`. \n[share](" + twitterURL + ")",
 				Color:       0x1fd1da,
 				Image: &discordgo.MessageEmbedImage{
 					URL: bucketObjectUrl,
 				},
 			},
 		},
-		Components: []discordgo.MessageComponent{
-			discordgo.ActionsRow{
-				Components: []discordgo.MessageComponent{shareButton},
-			},
-		},
+		// Components: []discordgo.MessageComponent{
+		// 	discordgo.ActionsRow{
+		// 		Components: []discordgo.MessageComponent{shareButton},
+		// 	},
+		// },
 	})
 	if err != nil {
 		fmt.Println("応答に失敗しました: ", err)
