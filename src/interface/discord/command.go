@@ -6,6 +6,7 @@ import (
 	"emorize/src/infra/bucket"
 	"encoding/base64"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/bwmarrin/discordgo"
@@ -134,10 +135,21 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// Emoji を guild に追加
 	emoji, err := s.GuildEmojiCreate(i.GuildID, newEmoji)
 	if err != nil {
-		fmt.Println("Failed to create emoji: ", err)
-		respondAsyncError(s, i, "Failed to create emoji")
+		fmt.Println("Failed to add emoji: ", err)
+		respondAsyncError(s, i, "Failed to add emoji\nhint1 : `MANAGE_EMOJI_AND_STICKER` permission is insufficient. Please change from `Server Settings` > `Roles` > `emorize` > `Permissions` > `Manage emojis`.\nhint2 : Your server's emoji slots may be full. Boost your server to increase capacity or organize existing emojis to free up space.")
 		return
 	}
+
+	// Twitter 共有リンクを生成
+	twitterText := url.QueryEscape("I created a new Emoji using #emorize! \n" + bucketObjectUrl + " \n\napp: emorize.megrio.com")
+	twitterURL := "https://twitter.com/intent/tweet?text=" + twitterText
+
+	// ボタンを作成
+	// shareButton := discordgo.Button{
+	// 	Label: "Share on X/Twitter",
+	// 	Style: discordgo.LinkButton,
+	// 	URL:   twitterURL,
+	// }
 
 	// respond
 	_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
@@ -145,13 +157,18 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		Embeds: []*discordgo.MessageEmbed{
 			{
 				Title:       " <:" + emoji.Name + ":" + emoji.ID + "> : " + emoji.Name,
-				Description: "New Custom-Emoji Created and Now Available!\nYou can use this emoji by typing `:name:`.",
+				Description: "New Custom-Emoji Created and Now Available!\nYou can use this emoji by typing `:" + emoji.Name + ":`. \n[share on X/Twitter](" + twitterURL + ")",
 				Color:       0x1fd1da,
 				Image: &discordgo.MessageEmbedImage{
 					URL: bucketObjectUrl,
 				},
 			},
 		},
+		// Components: []discordgo.MessageComponent{
+		// 	discordgo.ActionsRow{
+		// 		Components: []discordgo.MessageComponent{shareButton},
+		// 	},
+		// },
 	})
 	if err != nil {
 		fmt.Println("応答に失敗しました: ", err)
