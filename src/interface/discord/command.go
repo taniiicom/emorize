@@ -86,6 +86,7 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		text      string
 		name      string
 		colorText string = ""
+		fontText  string = "round-gothic"
 	)
 	for _, option := range i.ApplicationCommandData().Options {
 		switch option.Name {
@@ -95,6 +96,8 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			name = option.StringValue()
 		case "color":
 			colorText = option.StringValue()
+		case "font":
+			fontText = option.StringValue()
 		}
 	}
 
@@ -107,9 +110,18 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		hexColor, _ = col.ConvHexColor(colorText)
 	}
 
+	// Font
+	fontsChart := map[string]string{
+		"round-gothic": "public/fonts/ZenMaruGothic-Medium.ttf",
+		"mincho":       "public/fonts/HinaMincho-Regular.ttf",
+		"headline":     "public/fonts/RampartOne-Regular.ttf",
+		"handwriting":  "public/fonts/Yomogi-Regular.ttf",
+		"dot":          "public/fonts/DotGothic16-Regular.ttf",
+	}
+
 	// TextEmoji
 	uploader := &bucket.R2Uploader{} // [di]
-	te := textemoji.NewTextEmojiService(FONT_PATH, uploader)
+	te := textemoji.NewTextEmojiService(fontsChart[fontText], uploader)
 	filePath, bucketObjectUrl, err := te.GenerateTextEmoji(text, hexColor)
 	if err != nil {
 		fmt.Println("Failed to generate text emoji: ", err)

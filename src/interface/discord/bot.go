@@ -75,6 +75,34 @@ func (b *Bot) Setup() {
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "font",
+					Description: "text font / e.g. round-gothic, mincho, headline, handwriting, dot",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "round-gothic",
+							Value: "round-gothic",
+						},
+						{
+							Name:  "mincho",
+							Value: "mincho",
+						},
+						{
+							Name:  "headline",
+							Value: "headline",
+						},
+						{
+							Name:  "handwriting",
+							Value: "handwriting",
+						},
+						{
+							Name:  "dot",
+							Value: "dot",
+						},
+					},
+				},
 			},
 		},
 	}
