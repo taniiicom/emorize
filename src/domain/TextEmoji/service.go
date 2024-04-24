@@ -143,7 +143,7 @@ func drawText(c *freetype.Context, font *truetype.Font, text string, width int) 
 		// スケールに基づいてフォントサイズを調整
 		c.SetFontSize(lineHeight * scale)
 		// テキストを中央揃えで描画するための開始ポイントを計算
-		pt := freetype.Pt(int(math.Round((float64(CANVAS_WIDTH)-(float64(txtWidth)*scale))/2)), i*int(lineHeight)+int(lineHeight*scale))
+		pt := freetype.Pt(int(math.Round((float64(CANVAS_WIDTH)-(float64(txtWidth)*scale))/2)), i*int(lineHeight)+int(lineHeight*scale+lineHeight*(1-scale)/2))
 		_, err := c.DrawString(line, pt)
 		if err != nil {
 			return err
