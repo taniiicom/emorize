@@ -110,7 +110,6 @@ func drawText(c *freetype.Context, font *truetype.Font, text string, width int) 
 
 	// fontSize, yPos: y 座標 を定義
 	var fontSize float64
-	var yPos float64
 
 	// fontSize, yPos を計算
 	if len(lines) == 0 {
@@ -118,7 +117,6 @@ func drawText(c *freetype.Context, font *truetype.Font, text string, width int) 
 		return fmt.Errorf("too few lines")
 	} else if len(lines) < 4 {
 		fontSize = (CANVAS_HEIGHT) / float64(len(lines))
-		yPos = float64(fontSize)
 	} else {
 		// err
 		return fmt.Errorf("too many lines")
@@ -145,7 +143,7 @@ func drawText(c *freetype.Context, font *truetype.Font, text string, width int) 
 		// スケールに基づいてフォントサイズを調整
 		c.SetFontSize(fontSize * scale)
 		// テキストを中央揃えで描画するための開始ポイントを計算
-		pt := freetype.Pt(int(math.Round((float64(CANVAS_WIDTH)-(float64(txtWidth)*scale))/2)), int(yPos)+i*int(fontSize*scale))
+		pt := freetype.Pt(int(math.Round((float64(CANVAS_WIDTH)-(float64(txtWidth)*scale))/2)), (i+1)*int(fontSize*scale))
 		_, err := c.DrawString(line, pt)
 		if err != nil {
 			return err
