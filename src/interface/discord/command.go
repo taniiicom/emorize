@@ -6,6 +6,7 @@ import (
 	"emorize/src/infra/bucket"
 	"encoding/base64"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/bwmarrin/discordgo"
@@ -139,17 +140,33 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
+	// Twitter 共有リンクを生成
+	twitterText := url.QueryEscape("I created a new Emoji using #emorize! \n" + bucketObjectUrl + " \n\napp: emorize.megrio.com")
+	twitterURL := "https://twitter.com/intent/tweet?text=" + twitterText
+
+	// ボタンを作成
+	shareButton := discordgo.Button{
+		Label: "Share on X/Twitter",
+		Style: discordgo.LinkButton,
+		URL:   twitterURL,
+	}
+
 	// respond
 	_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 		Content: "",
 		Embeds: []*discordgo.MessageEmbed{
 			{
 				Title:       " <:" + emoji.Name + ":" + emoji.ID + "> : " + emoji.Name,
-				Description: "New Custom-Emoji Created and Now Available!\nYou can use this emoji by typing `:name:`.",
+				Description: "New Custom-Emoji Created and Now Available!\nYou can use this emoji by typing `:" + emoji.Name + ":`.",
 				Color:       0x1fd1da,
 				Image: &discordgo.MessageEmbedImage{
 					URL: bucketObjectUrl,
 				},
+			},
+		},
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{shareButton},
 			},
 		},
 	})
