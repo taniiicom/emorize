@@ -108,29 +108,27 @@ func drawText(c *freetype.Context, font *truetype.Font, text string, width int) 
 	// "_" で改行を分割
 	lines := strings.Split(text, "_")
 
-	// fontSize, yPos: y 座標 を定義
-	var fontSize float64
-	var yPos float64
+	// lineHeight, yPos: y 座標 を定義
+	var lineHeight float64
 
-	// fontSize, yPos を計算
+	// lineHeight, yPos を計算
 	if len(lines) == 0 {
 		// err
 		return fmt.Errorf("too few lines")
 	} else if len(lines) < 4 {
-		fontSize = (CANVAS_HEIGHT) / float64(len(lines))
-		yPos = float64(fontSize)
+		lineHeight = (CANVAS_HEIGHT) / float64(len(lines))
 	} else {
 		// err
 		return fmt.Errorf("too many lines")
 	}
 
 	// フォントサイズを設定
-	c.SetFontSize(fontSize)
+	c.SetFontSize(lineHeight)
 
 	// 分割された各行について描画
 	for i, line := range lines {
 		opts := truetype.Options{}
-		opts.Size = fontSize
+		opts.Size = lineHeight
 		// 設定したフォントサイズでフォントフェイスを生成
 		face := truetype.NewFace(font, &opts)
 
@@ -143,9 +141,9 @@ func drawText(c *freetype.Context, font *truetype.Font, text string, width int) 
 		}
 
 		// スケールに基づいてフォントサイズを調整
-		c.SetFontSize(fontSize * scale)
+		c.SetFontSize(lineHeight * scale)
 		// テキストを中央揃えで描画するための開始ポイントを計算
-		pt := freetype.Pt(int(math.Round((float64(CANVAS_WIDTH)-(float64(txtWidth)*scale))/2)), int(yPos)+i*int(fontSize))
+		pt := freetype.Pt(int(math.Round((float64(CANVAS_WIDTH)-(float64(txtWidth)*scale))/2)), i*int(lineHeight)+int(lineHeight*scale+lineHeight*(1-scale)/2))
 		_, err := c.DrawString(line, pt)
 		if err != nil {
 			return err
