@@ -6,7 +6,7 @@ toolchain go1.21.9
 
 require (
 	github.com/aws/aws-sdk-go v1.51.18
-	github.com/bwmarrin/discordgo v0.27.1
+	github.com/bwmarrin/discordgo v0.29.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/google/wire v0.6.0
 	github.com/joho/godotenv v1.5.1
