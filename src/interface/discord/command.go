@@ -5,6 +5,7 @@ import (
 	textemoji "emorize/src/domain/TextEmoji"
 	"emorize/src/infra/bucket"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -66,6 +67,24 @@ func respondAsyncError(s *discordgo.Session, i *discordgo.InteractionCreate, mes
 	if err != nil {
 		fmt.Println("応答に失敗しました: ", err)
 	}
+}
+
+func addEmojiErrorMessage(err error) string {
+	var restErr *discordgo.RESTError
+	if errors.As(err, &restErr) && restErr.Message != nil {
+		switch restErr.Message.Code {
+		case discordgo.ErrCodeMissingPermissions:
+			return "Failed to add emoji\nhint1 : Missing `Create Expressions` (`CREATE_GUILD_EXPRESSIONS`) permission. Re-invite the bot with the new permission or enable `Create Expressions` from `Server Settings` > `Roles` > `emorize` > `Permissions`.\nhint2 : `Manage Expressions` (`MANAGE_GUILD_EXPRESSIONS`) alone no longer allows creating custom emojis."
+		case discordgo.ErrCodeMaximumNumberOfEmojisReached, discordgo.ErrCodeMaximumNumberOfAnimatedEmojisReached:
+			return "Failed to add emoji\nhint : Your server's emoji slots may be full. Boost your server to increase capacity or organize existing emojis to free up space."
+		case discordgo.ErrCodeInvalidFormBody:
+			return "Failed to add emoji\nhint : Emoji names must be at least 2 characters long and can only contain alphanumeric characters and underscores."
+		case discordgo.ErrCodeFileUploadedExceedsTheMaximumSize:
+			return "Failed to add emoji\nhint : Emoji files must be smaller than 256 KiB."
+		}
+	}
+
+	return "Failed to add emoji\nhint1 : Make sure the bot has `Create Expressions` (`CREATE_GUILD_EXPRESSIONS`) permission.\nhint2 : Your server's emoji slots may be full."
 }
 
 func responsePing(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -136,7 +155,7 @@ func responseEmorize(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	emoji, err := s.GuildEmojiCreate(i.GuildID, newEmoji)
 	if err != nil {
 		fmt.Println("Failed to add emoji: ", err)
-		respondAsyncError(s, i, "Failed to add emoji\nhint1 : `MANAGE_EMOJI_AND_STICKER` permission is insufficient. Please change from `Server Settings` > `Roles` > `emorize` > `Permissions` > `Manage emojis`.\nhint2 : Your server's emoji slots may be full. Boost your server to increase capacity or organize existing emojis to free up space.")
+		respondAsyncError(s, i, addEmojiErrorMessage(err))
 		return
 	}
 

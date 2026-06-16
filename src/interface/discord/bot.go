@@ -17,6 +17,8 @@ func NewBot(session *discordgo.Session, AppId string) *Bot {
 
 func (b *Bot) Setup() {
 	// slash-command
+	createGuildExpressionsPermission := int64(discordgo.PermissionCreateGuildExpressions)
+	dmPermission := false
 
 	commands := []*discordgo.ApplicationCommand{
 		{
@@ -24,8 +26,10 @@ func (b *Bot) Setup() {
 			Description: "ping pong",
 		},
 		{
-			Name:        "emorize",
-			Description: "Generate Custom-Emoji from Text",
+			Name:                     "emorize",
+			Description:              "Generate Custom-Emoji from Text",
+			DefaultMemberPermissions: &createGuildExpressionsPermission,
+			DMPermission:             &dmPermission,
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
